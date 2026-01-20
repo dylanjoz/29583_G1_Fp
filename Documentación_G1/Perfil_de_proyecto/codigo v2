@@ -1,0 +1,195 @@
+#include <stdio.h>
+#include <string.h>
+
+// ---------------- CONSTANTES ----------------
+#define MAX_PRODUCTOS 20
+#define MAX_CLIENTES 50
+
+// ---------------- ESTRUCTURAS ----------------
+typedef struct {
+    char nombre[30];
+    int cantidad;
+    float costo;
+} Producto;
+
+typedef struct {
+    char nombre[30];
+    char cedula[15];
+    char producto[30];
+    int cantidad;
+} Cliente;
+
+// ---------------- VARIABLES GLOBALES ----------------
+Producto inventario[MAX_PRODUCTOS];
+Cliente clientes[MAX_CLIENTES];
+
+int totalProductos = 0;
+int totalClientes = 0;
+
+// ---------------- FUNCIONES ----------------
+void menuPrincipal();
+void agregarProducto();
+void mostrarInventario();
+void registrarCompra();
+void mostrarClientes();
+
+// ---------------- MAIN ----------------
+int main() {
+    int opcion;
+
+    do {
+        menuPrincipal();
+        printf("Seleccione una opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion) {
+            case 1:
+                agregarProducto();
+                break;
+            case 2:
+                mostrarInventario();
+                break;
+            case 3:
+                registrarCompra();
+                break;
+            case 4:
+                mostrarClientes();
+                break;
+            case 5:
+                printf("\nSaliendo del programa...\n");
+                break;
+            default:
+                printf("\nOpcion invalida.\n");
+        }
+
+    } while(opcion != 5);
+
+    return 0;
+}
+
+// ---------------- MENU ----------------
+void menuPrincipal() {
+    printf("\n===== CONTROL DE INVENTARIO - DISTRIBUIDORA DE HUEVOS =====\n");
+    printf("1. Agregar productos al inventario\n");
+    printf("2. Ver inventario\n");
+    printf("3. Registrar compra\n");
+    printf("4. Clientes registrados\n");
+    printf("5. Salir\n");
+}
+
+// ---------------- AGREGAR PRODUCTO ----------------
+void agregarProducto() {
+    if (totalProductos >= MAX_PRODUCTOS) {
+        printf("\nInventario lleno.\n");
+        return;
+    }
+
+    printf("\n--- AGREGAR PRODUCTO ---\n");
+    printf("Nombre del producto: ");
+    scanf(" %[^\n]", inventario[totalProductos].nombre);
+
+    printf("Cantidad a ingresar: ");
+    scanf("%d", &inventario[totalProductos].cantidad);
+
+    printf("Costo unitario: ");
+    scanf("%f", &inventario[totalProductos].costo);
+
+    totalProductos++;
+
+    printf("\nProducto agregado correctamente.\n");
+}
+
+// ---------------- MOSTRAR INVENTARIO ----------------
+void mostrarInventario() {
+    int i;
+
+    printf("\n------------------ INVENTARIO ------------------\n");
+    printf("%-5s %-20s %-10s %-10s\n", "No", "Producto", "Cantidad", "Costo");
+    printf("------------------------------------------------\n");
+
+    for (i = 0; i < totalProductos; i++) {
+        printf("%-5d %-20s %-10d $%-9.2f\n",
+               i + 1,
+               inventario[i].nombre,
+               inventario[i].cantidad,
+               inventario[i].costo);
+    }
+
+    if (totalProductos == 0) {
+        printf("No hay productos registrados.\n");
+    }
+}
+
+// ---------------- REGISTRAR COMPRA ----------------
+void registrarCompra() {
+    int i, cantidadCompra, encontrado = -1;
+    char productoCompra[30];
+
+    if (totalClientes >= MAX_CLIENTES) {
+        printf("\nLimite de clientes alcanzado.\n");
+        return;
+    }
+
+    printf("\n--- REGISTRAR COMPRA ---\n");
+
+    printf("Nombre del cliente: ");
+    scanf(" %[^\n]", clientes[totalClientes].nombre);
+
+    printf("Cedula del cliente: ");
+    scanf(" %[^\n]", clientes[totalClientes].cedula);
+
+    printf("Producto a comprar: ");
+    scanf(" %[^\n]", productoCompra);
+
+    for (i = 0; i < totalProductos; i++) {
+        if (strcmp(inventario[i].nombre, productoCompra) == 0) {
+            encontrado = i;
+            break;
+        }
+    }
+
+    if (encontrado == -1) {
+        printf("\nProducto no encontrado.\n");
+        return;
+    }
+
+    printf("Cantidad a comprar: ");
+    scanf("%d", &cantidadCompra);
+
+    if (cantidadCompra > inventario[encontrado].cantidad) {
+        printf("\nStock insuficiente.\n");
+        return;
+    }
+
+    inventario[encontrado].cantidad -= cantidadCompra;
+
+    strcpy(clientes[totalClientes].producto, productoCompra);
+    clientes[totalClientes].cantidad = cantidadCompra;
+
+    totalClientes++;
+
+    printf("\nCompra registrada exitosamente.\n");
+}
+
+// ---------------- MOSTRAR CLIENTES ----------------
+void mostrarClientes() {
+    int i;
+
+    printf("\n---------------- CLIENTES REGISTRADOS ----------------\n");
+    printf("%-5s %-20s %-15s %-15s %-10s\n",
+           "No", "Nombre", "Cedula", "Producto", "Cantidad");
+    printf("------------------------------------------------------\n");
+
+    for (i = 0; i < totalClientes; i++) {
+        printf("%-5d %-20s %-15s %-15s %-10d\n",
+               i + 1,
+               clientes[i].nombre,
+               clientes[i].cedula,
+               clientes[i].producto,
+               clientes[i].cantidad);
+    }
+
+    if (totalClientes == 0) {
+        printf("No hay clientes registrados.\n");
+    }
+}
