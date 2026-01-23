@@ -1,0 +1,219 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+// ---------------- VARIABLES GLOBALES ----------------
+int inventario = 300;
+int totalClientes = 0;
+
+char nombres[10][50];
+char direcciones[10][50];
+char telefonos[10][20];
+
+// Matriz para registrar compras por cliente
+int compras[10][1];
+
+// ---------------- FUNCION PARA VALIDAR NUMEROS ----------------
+int esNumero(char texto[]) {
+    int i;
+    for (i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] < '0' || texto[i] > '9') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+// ---------------- REGISTRAR CLIENTE ----------------
+void registrarCliente() {
+    system("cls");
+
+    char telefonoTemp[20];
+
+    if (totalClientes >= 10) {
+        printf("Limite de clientes alcanzado.\n");
+        printf("Presione Enter para regresar...");
+        getchar();
+        return;
+    }
+
+    printf("=== REGISTRO DE CLIENTE ===\n");
+
+    printf("Nombre: ");
+    scanf(" %[^\n]", nombres[totalClientes]);
+
+    printf("Direccion: ");
+    scanf(" %[^\n]", direcciones[totalClientes]);
+
+    do {
+        printf("Telefono (solo numeros): ");
+        scanf(" %[^\n]", telefonoTemp);
+
+        if (!esNumero(telefonoTemp)) {
+            printf("Error: no se permiten letras.\n");
+        }
+    } while (!esNumero(telefonoTemp));
+
+    strcpy(telefonos[totalClientes], telefonoTemp);
+
+    compras[totalClientes][0] = 0;
+    totalClientes++;
+
+    printf("\nCliente registrado correctamente.\n");
+    printf("Presione Enter para regresar al menu...");
+    getchar();
+}
+
+// ---------------- MOSTRAR CLIENTES ----------------
+void mostrarClientes() {
+    system("cls");
+
+    if (totalClientes == 0) {
+        printf("No hay clientes registrados.\n");
+    } else {
+        printf("=== LISTA DE CLIENTES ===\n\n");
+
+        for (int i = 0; i < totalClientes; i++) {
+            printf("Cliente %d\n", i + 1);
+            printf("Nombre: %s\n", nombres[i]);
+            printf("Direccion: %s\n", direcciones[i]);
+            printf("Telefono: %s\n", telefonos[i]);
+            printf("Total comprado: %d huevos\n\n", compras[i][0]);
+        }
+    }
+
+    printf("Presione Enter para regresar al menu...");
+    getchar();
+}
+
+// ---------------- REGISTRAR VENTA ----------------
+void registrarVenta() {
+    system("cls");
+
+    char clienteTexto[10];
+    char cantidadTexto[10];
+    int cliente, cantidad;
+
+    if (totalClientes == 0) {
+        printf("No hay clientes registrados.\n");
+        printf("Presione Enter para regresar...");
+        getchar();
+        return;
+    }
+
+    printf("=== REGISTRO DE VENTA ===\n");
+
+    do {
+        printf("Seleccione cliente (1 a %d): ", totalClientes);
+        scanf(" %[^\n]", clienteTexto);
+
+        if (!esNumero(clienteTexto)) {
+            printf("Error: solo numeros.\n");
+            continue;
+        }
+
+        cliente = atoi(clienteTexto);
+
+        if (cliente < 1 || cliente > totalClientes) {
+            printf("Cliente fuera de rango.\n");
+        }
+
+    } while (!esNumero(clienteTexto) || cliente < 1 || cliente > totalClientes);
+
+    do {
+        printf("Cantidad de huevos a vender: ");
+        scanf(" %[^\n]", cantidadTexto);
+
+        if (!esNumero(cantidadTexto)) {
+            printf("Error: solo numeros.\n");
+            continue;
+        }
+
+        cantidad = atoi(cantidadTexto);
+
+        if (cantidad <= 0) {
+            printf("La cantidad debe ser mayor a cero.\n");
+        } else if (cantidad > inventario) {
+            printf("Inventario insuficiente.\n");
+        }
+
+    } while (!esNumero(cantidadTexto) || cantidad <= 0 || cantidad > inventario);
+
+    inventario -= cantidad;
+    compras[cliente - 1][0] += cantidad;
+
+    printf("\nVenta registrada con exito.\n");
+    printf("Inventario restante: %d\n", inventario);
+    printf("Presione Enter para regresar al menu...");
+    getchar();
+}
+
+// ---------------- MOSTRAR INVENTARIO ----------------
+void mostrarInventario() {
+    system("cls");
+
+    printf("=== INVENTARIO ===\n");
+    printf("Huevos disponibles: %d\n", inventario);
+
+    printf("Presione Enter para regresar al menu...");
+    getchar();
+    getchar();
+}
+
+// ---------------- MENU PRINCIPAL ----------------
+int main() {
+    char opcionTexto[10];
+    int opcion;
+
+    do {
+        system("cls");
+
+        printf("=====================================\n");
+        printf("   EGGCONTROL - SISTEMA DE INVENTARIO \n");
+        printf("=====================================\n");
+        printf("1. Registrar cliente\n");
+        printf("2. Ver clientes\n");
+        printf("3. Registrar venta\n");
+        printf("4. Ver inventario\n");
+        printf("5. Salir\n");
+        printf("Seleccione una opcion: ");
+        scanf(" %[^\n]", opcionTexto);
+
+        if (!esNumero(opcionTexto)) {
+            printf("Error: solo se permiten numeros.\n");
+            printf("Presione Enter...");
+            getchar();
+            continue;
+        }
+
+        opcion = atoi(opcionTexto);
+
+        if (opcion < 1 || opcion > 5) {
+            printf("Opcion fuera de rango.\n");
+            printf("Presione Enter...");
+            getchar();
+            continue;
+        }
+
+        switch (opcion) {
+            case 1:
+                registrarCliente();
+                break;
+            case 2:
+                mostrarClientes();
+                break;
+            case 3:
+                registrarVenta();
+                break;
+            case 4:
+                mostrarInventario();
+                break;
+            case 5:
+                printf("\nGracias por usar EggControl.\n");
+                break;
+        }
+
+    } while (opcion != 5);
+
+    return 0;
+}
